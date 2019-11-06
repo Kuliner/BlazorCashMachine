@@ -1,0 +1,31 @@
+﻿@page "/cashoutmachine"
+@inject CashMachine.Data.Services.ICashoutService CashService
+Amount:
+<input @bind-value="@CashoutSum" type="number" />
+<p>Notes: @Notes </p>
+<button type="button" @onclick="CashoutButtonClicked">Cashout</button>
+
+@functions {
+
+    private int CashoutSum;
+    private string Notes;
+
+    private void CashoutButtonClicked()
+    {
+        try
+        {
+            if (CashoutSum == 0)
+            {
+                Notes = "Input error, please provide any value to cashout.";
+                return;
+            }
+
+            var money = CashService.Cashout(CashoutSum);
+            Notes = string.Join(',', money.Banknotes.Select(x => x.Value.ToString()));
+        }
+        catch (CashMachine.Data.Exceptions.NoteUnavailableException)
+        {
+            Notes = "Note unavailable. Please use only nominals of 10, 20, 50 and a 100";
+        }
+    }
+}
